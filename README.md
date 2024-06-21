@@ -7,7 +7,7 @@
 	```sh
 	echo "[development] \
 	aws_access_key_id=KEY_ID \
-	aws_secret_access_key=ACCESS_KEY" > ~/.aws/credentials-test
+	aws_secret_access_key=ACCESS_KEY" > ~/.aws/credentials
 	```
 
 ## Installation
