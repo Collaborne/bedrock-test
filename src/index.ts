@@ -1,10 +1,6 @@
 import dotenv from 'dotenv';
-import {
-	initAWSBedrockClient
-} from './aws';
-import {
-	createBedrock
-} from './bedrock';
+import { assumeRole } from './aws';
+import { createBedrockModel } from './bedrock';
 
 dotenv.config();
 
@@ -15,18 +11,25 @@ The “K-Culture Training Visa” will be open to foreigners who want to train i
 
 Applicants don’t necessarily need to audition or have a callback offer from a talent agency – at least not yet – as more details are expected to come out later this year.
 `;
-const MODEL_ID = 'anthropic.claude-3-haiku-20240307-v1:0';
+
+const MODEL_ID = 'anthropic.claude-v2:1'; // 'anthropic.claude-3-haiku-20240307-v1:0';
 
 async function main() {
 	try {
-		const awsBedrockClient = await initAWSBedrockClient();
-		const bedrock = createBedrock(awsBedrockClient, {
-			modelId: MODEL_ID,
+		const credentials = await assumeRole();
+		const bedrockModel = await createBedrockModel(credentials, {
+			// Pick a region where the model is available
+			region: 'us-east-1',
+			model: MODEL_ID,
 		});
-		const summary = await bedrock.call(`Summarize the following text in one sentence\n\n${SAMPLE_TEXT}`);
+
+		const prompt = `Human: Summarize the following text in one sentence\n\n${SAMPLE_TEXT}\nAssistant:`;
+		const summary = await bedrockModel.invoke(prompt);
+
 		console.log('Summary:', summary);
 	} catch (error) {
 		console.error('Failed to summarize text:', error);
 	}
 }
+
 main();
