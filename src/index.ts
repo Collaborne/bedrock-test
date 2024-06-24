@@ -1,6 +1,6 @@
+import { Bedrock } from '@langchain/community/llms/bedrock';
 import dotenv from 'dotenv';
 import { assumeRole } from './aws';
-import { createBedrockModel } from './bedrock';
 
 dotenv.config();
 
@@ -17,11 +17,15 @@ const MODEL_ID = 'anthropic.claude-v2:1'; // 'anthropic.claude-3-haiku-20240307-
 async function main() {
 	try {
 		const credentials = await assumeRole();
-		const bedrockModel = await createBedrockModel(credentials, {
-			// Pick a region where the model is available
-			region: 'us-east-1',
+		const bedrockModel = new Bedrock({
 			model: MODEL_ID,
-		});
+			region: 'us-east-1',
+			credentials: {
+				accessKeyId: credentials.AccessKeyId!,
+				secretAccessKey: credentials.SecretAccessKey!,
+				sessionToken: credentials.SessionToken!,
+			},
+		})
 
 		const prompt = `Human: Summarize the following text in one sentence\n\n${SAMPLE_TEXT}\nAssistant:`;
 		const summary = await bedrockModel.invoke(prompt);
