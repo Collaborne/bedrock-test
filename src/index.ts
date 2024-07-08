@@ -1,6 +1,8 @@
 import { Bedrock } from '@langchain/community/llms/bedrock';
 import dotenv from 'dotenv';
 import { assumeRole } from './aws';
+import { loadSummarizationChain } from 'langchain/chains';
+
 
 dotenv.config();
 
@@ -12,7 +14,8 @@ The “K-Culture Training Visa” will be open to foreigners who want to train i
 Applicants don’t necessarily need to audition or have a callback offer from a talent agency – at least not yet – as more details are expected to come out later this year.
 `;
 
-const MODEL_ID = 'anthropic.claude-v2:1'; // 'anthropic.claude-3-haiku-20240307-v1:0';
+
+const MODEL_ID = 'anthropic.claude-v2:1'; // 'anthropic.claude-3-haiku-20240307-v1:0';	
 
 async function main() {
 	try {
@@ -27,8 +30,11 @@ async function main() {
 			},
 		})
 
-		const prompt = `Human: Summarize the following text in one sentence\n\n${SAMPLE_TEXT}\nAssistant:`;
-		const summary = await bedrockModel.invoke(prompt);
+		const summarizationChain = loadSummarizationChain(bedrockModel);
+
+		const summary = await summarizationChain.run({
+			input: SAMPLE_TEXT,
+		});
 
 		console.log('Summary:', summary);
 	} catch (error) {
@@ -37,3 +43,4 @@ async function main() {
 }
 
 main();
+
