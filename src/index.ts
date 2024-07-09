@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import { assumeRole } from './aws';
 import { loadSummarizationChain } from 'langchain/chains';
 
+import { Document } from "langchain/document";
+
 
 dotenv.config();
 
@@ -30,13 +32,16 @@ async function main() {
 			},
 		})
 
-		const summarizationChain = loadSummarizationChain(bedrockModel);
+		const inputDocuments = [
+			new Document({ pageContent: `\n\nHuman: ${SAMPLE_TEXT}\n\nAssistant:` }),
+		];
 
-		const summary = await summarizationChain.run({
-			input: SAMPLE_TEXT,
+		const summarizationChain = loadSummarizationChain(bedrockModel);
+		const summary = await summarizationChain.invoke({
+			input_documents: inputDocuments,
 		});
 
-		console.log('Summary:', summary);
+		console.log('Summary:', summary.text);
 	} catch (error) {
 		console.error('Failed to summarize text:', error);
 	}
