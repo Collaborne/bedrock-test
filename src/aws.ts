@@ -10,7 +10,7 @@ export async function assumeRole() {
 	const params = {
 		RoleArn: 'arn:aws:iam::996672920125:role/AccessToBedrockVivan',
 		RoleSessionName: 'bedrockInvokeSession'
-	}
+	};
 	try {
 		const command = new AssumeRoleCommand(params);
 		const response = await stsClient.send(command);
